@@ -1,53 +1,59 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
-  StyleSheet,
-  Text,
-  View
+  Text
 } from 'react-native';
+import Swiper from './src/swiper';
+import {Parse} from 'parse/react-native';
+import {realm} from './src/Word';
+
 
 export default class PixnaryApp extends Component {
+  constructor() {
+    super();
+    this.state = {
+      loading: true,
+      result: []
+    }
+  }
+  componentDidMount() {
+    if(realm.objects('Word').length < 1) {
+      Parse.initialize("myAppId","pixnary");
+      Parse.serverURL = 'https://secure-gorge-72882.herokuapp.com/parse';
+      Parse.Cloud.run("getData", { number:0 }).then((result) => {
+        result = (JSON.parse(result));
+        this.setState({
+          result
+        });
+        this.state.result.map((o) => {
+          realm.write(() => {
+            realm.create('Word', {
+              word: o.word,
+              meaning: o.pmeaning,
+              sentence: o.sentence,
+              imageUrl: o.imageUrl
+            });
+          });
+        });
+        this.setState({
+          loading: false
+        });
+      }, function(error) {
+        console.log(error);
+      }); 
+    } else {
+      this.setState({
+        loading: false
+      });
+    }
+  }
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
+      this.state.loading ? <Text>Loding</Text> : <Swiper />
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
+
 
 AppRegistry.registerComponent('PixnaryApp', () => PixnaryApp);
