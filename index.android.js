@@ -3,9 +3,9 @@ import {
   AppRegistry,
   Text
 } from 'react-native';
-import Swiper from './src/swiper';
+import Swiper from './src/containers/swiper';
 import {Parse} from 'parse/react-native';
-import {realm} from './src/Word';
+import {realm} from './src/services/Word';
 
 
 export default class PixnaryApp extends Component {
@@ -49,7 +49,7 @@ export default class PixnaryApp extends Component {
   }
   render() {
     return (
-      this.state.loading ? <Text>Loding</Text> : <Swiper />
+      this.state.loading ? <Text>Loading</Text> : <Swiper />
     );
   }
 }

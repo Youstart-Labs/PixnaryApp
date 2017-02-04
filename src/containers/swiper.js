@@ -5,25 +5,32 @@ import {
     View,
     Text
 } from 'react-native';
-
+import {WordView} from './wordView';
 import Swiper from 'react-native-swiper';
+import {realm} from '../services/Word';
 
 export default class swiper extends Component {
     constructor(props) {
-        super(props)
+        super(props);
+        this.state = {
+            words: [],
+            loading: true
+        };
+    }
+    componentDidMount() {
+        let words = realm.objects('Word').sorted('word').filtered('word BEGINSWITH "a"');
+        this.setState({
+            words
+        });
     }
     render() {
         return (
             <Swiper style={styles.wrapper} loop={false} showsPagination	={false} >
-                <View style={styles.slide1}>
-                    <Text style={styles.text}>Word1</Text>
-                </View>
-                <View style={styles.slide2}>
-                    <Text style={styles.text}>Word2</Text>
-                </View>
-                <View style={styles.slide3}>
-                    <Text style={styles.text}>Word3</Text>
-                </View>
+                {this.state.words.map((word,i) => {
+                    return (
+                        <WordView key={i} word={word.word} meaning={word.meaning} sentence={word.sentence} url={`http://secure-gorge-72882.herokuapp.com/public/images/${word.word}.jpg`} />
+                    )
+                })}
             </Swiper>
         )
     }
